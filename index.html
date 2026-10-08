@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>독도의 날</title>
+    <title>독도의 날 - 포토존</title>
     <style>
         * {
             margin: 0;
@@ -13,21 +13,139 @@
         body, html {
             width: 100%;
             height: 100%;
-            overflow: hidden;
-            background-color: #f7f5ee; /* 이미지 배경과 유사한 아이보리 톤 */
+            background-color: #121212;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
+            font-family: sans-serif;
         }
-        .splash-image {
+
+        /* 촬영 화면 뷰포트 (가로형) */
+        .camera-container {
+            position: relative;
+            width: 90vw;
+            max-width: 960px;
+            aspect-ratio: 16 / 9;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            background-color: #000;
+        }
+
+        /* 1. 카메라는 제일 뒤에 배치 */
+        #webcam {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            object-fit: cover; /* 화면에 가득 차게 설정 (비율 유지 시 contain으로 변경) */
+            object-fit: cover;
+            transform: scaleX(-1); /* 셀카 반전 처리 */
+            z-index: 1;
+        }
+
+        /* 2. 프레임 이미지는 카메라 위에 겹치기 */
+        #frame {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            pointer-events: none; /* 클릭 이벤트 통과 */
+            z-index: 2;
+        }
+
+        /* 하단 버튼 */
+        .btn-container {
+            margin-top: 20px;
+        }
+
+        .capture-btn {
+            padding: 14px 28px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffffff;
+            background-color: #1d4ed8;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(29, 78, 216, 0.4);
+            transition: transform 0.1s ease;
+        }
+
+        .capture-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* 사진 캡처용 숨김 Canvas */
+        #canvas {
+            display: none;
         }
     </style>
 </head>
 <body>
-    <!-- 파일명에 공백이 있으므로 URL 인코딩(%20)이 포함된 경로를 사용합니다 -->
-    <img src="./splash.png" alt="독도의 날 첫화면" class="splash-image">
+
+    <div class="camera-container">
+        <!-- 웹캠 동영상 피드 -->
+        <video id="webcam" autoplay playsinline></video>
+        <!-- 오버레이 프레임 이미지 -->
+        <img id="frame" src="./frame.png" alt="독도의 날 프레임">
+    </div>
+
+    <div class="btn-container">
+        <button class="capture-btn" onclick="takePhoto()">📷 사진 찍기</button>
+    </div>
+
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const video = document.getElementById('webcam');
+        const frameImg = document.getElementById('frame');
+        const canvas = document.getElementById('canvas');
+
+        // 1. 카메라 권한 요청 및 비디오 연결
+        navigator.mediaDevices.getUserMedia({ 
+            video: { 
+                width: { ideal: 1920 },
+                height: { ideal: 1080 },
+                facingMode: "user" 
+            }, 
+            audio: false 
+        })
+        .then(stream => {
+            video.srcObject = stream;
+        })
+        .catch(err => {
+            alert("카메라를 켤 수 없습니다. 권한을 허용해 주세요.");
+            console.error(err);
+        });
+
+        // 2. 촬영 및 이미지 합성 함수
+        function takePhoto() {
+            const context = canvas.getContext('2d');
+            
+            // 캔버스 크기를 해상도에 맞춰 설정
+            canvas.width = video.videoWidth || 1280;
+            canvas.height = video.videoHeight || 720;
+
+            // [레이어 1] 카메라 화면 그리기 (셀카 반전 적용)
+            context.save();
+            context.translate(canvas.width, 0);
+            context.scale(-1, 1);
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            context.restore();
+
+            // [레이어 2] 프레임 이미지 위에 그리기
+            context.drawImage(frameImg, 0, 0, canvas.width, canvas.height);
+
+            // [다운로드] 이미지 저장
+            const link = document.createElement('a');
+            link.download = '독도의날_추억한컷.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+    </script>
 </body>
 </html>
