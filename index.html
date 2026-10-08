@@ -58,9 +58,58 @@
         <div class="section-heading"><div class="eyebrow">우리의 섬, 우리의 기억</div><div class="live-note"><svg class="icon" style="width:14px;height:14px"><use href="#i-camera"/></svg>독도의 날 기념 포토존</div></div>
         <div class="main-grid">
           <div class="poster entrance">
+            
             <!-- 새로 제작한 splash.png 지정 -->
             <img class="poster-image art-image" src="./splash.png" alt="독도의 날 메인 이미지" fetchpriority="high">
-          </div>
+          </* 이미지 위에 글씨를 배치하기 위한 레이아웃 */
+.poster {
+  position: relative;
+}
+
+.poster-overlay-text {
+  position: absolute;
+  top: 40px; /* 상단 여백 조정 */
+  left: 0;
+  right: 0;
+  text-align: center;
+  z-index: 2;
+  padding: 0 20px;
+}
+
+/* 큰 글씨: 귀엽고 또렷한 스타일 */
+.splash-main-title {
+  font-family: 'Gowun Batang', 'Pretendard', sans-serif;
+  font-size: 32px;
+  font-weight: 800;
+  color: #173d3c; /* 독도 테마 딥그린/파란색 톤 */
+  margin: 0 0 10px 0;
+  letter-spacing: -1px;
+  text-shadow: 0 2px 8px rgba(255, 255, 255, 0.9); /* 글씨가 잘 보이도록 백그라운드 후광 효과 */
+}
+
+/* 작은 글씨 */
+.splash-sub-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #3b5c5a;
+  margin: 0;
+  letter-spacing: -0.3px;
+  text-shadow: 0 1px 5px rgba(255, 255, 255, 0.9);
+}
+
+/* 모바일/작은 화면 대응 */
+@media (max-width: 740px) {
+  .poster-overlay-text {
+    top: 25px;
+  }
+  .splash-main-title {
+    font-size: 24px;
+  }
+  .splash-sub-title {
+    font-size: 13px;
+  }
+}
+            /div>
           <form class="participation entrance delay" id="participant-form" novalidate>
             <div class="form-topline"><span class="step-label">STEP 01 · 참여 정보</span><span class="small-tag">함께 찍어도 좋아요</span></div>
             <h2>오늘의 주인공은<br>누구인가요?</h2>
